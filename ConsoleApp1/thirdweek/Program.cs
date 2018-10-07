@@ -13,74 +13,86 @@ namespace thirdweek
         {
             StreamReader ForReading = new StreamReader("input.TXT");
             string[] line = ForReading.ReadLine().Split(' ');
-            int n = Convert.ToInt32(line[0]);
-            int m = Convert.ToInt32(line[1]);
-            int[] c = new int[m * n];
-            int[] c2 = new int[m * n];
-            int max = 0;
-            int[] a = new int[n];
-            int[] b = new int[m];
-            FillMas(ref ForReading, ref a);
-            FillMas(ref ForReading, ref b);
-            ForReading.Close();
+            ulong n = Convert.ToUInt64(line[0]);
+            ulong m = Convert.ToUInt64(line[1]);
+            ulong[] a = new ulong[n];
+            ulong[] b = new ulong[m];
+            line = ForReading.ReadLine().Split(' ');
+            for (int i = 0; i < a.Length; i++)
             {
-            int lol = 0;
-            int[] c1 = new int[40001];
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < m; j++)
-                {
-                    c2[lol] = a[i] * b[j];
-                    if (max < c2[lol]) max = c2[lol];
-                    c1[c2[lol++]]++;
-                }
-            for (int i = 1; i <= max; i++)
-                c1[i] += c1[i - 1];
-            NewMethod(ref c, ref c1, c2);
+                ulong kek = Convert.ToUInt64(line[i]);
+                a[i] = kek;
             }
-            int res = 0;
-            for (int i = 0; i < c.Length; i += 10)
-                res += c[i];
+            line = ForReading.ReadLine().Split(' ');
+            for (int i = 0; i < b.Length; i++)
+            {
+                ulong kek = Convert.ToUInt64(line[i]);
+                b[i] = kek;
+            }
+            ForReading.Close();
+            ulong[] c2 = new ulong[m * n];
+            int lol = 0;
+            for (ulong i = 0; i < n; i++)
+                for (ulong j = 0; j < m; j++)
+                    c2[lol++] = a[i] * b[j];
+            c2 = countingSort(c2);
+            ulong res = 0;
+            for (int i = 0; i < c2.Length; i += 10)
+                res += c2[i];
             StreamWriter Write = new StreamWriter("output.TXT");
             Write.Write(res);
             Write.Close();
         }
-        private static int[] countingSort(int[] arr, int min, int max)
+        private static ulong[] countingSort(ulong[] arr)
         {
-            int[] count = new int[max - min + 1];
-            int z = 0;
-
-            for (int i = 0; i < count.Length; i++)
-            {
-                count[i] = 0;
-            }
+            List<Class1> count = new List<Class1>();
             for (int i = 0; i < arr.Length; i++)
             {
-                count[arr[i] - min]++;
-            }
-
-            for (int i = min; i <= max; i++)
-            {
-                while (count[i - min]-- > 0)
+                bool ok = false;
+                ulong c = arr[i] / 1000;
+                for (int j = 0; j < count.Count; j++)
                 {
-                    arr[z] = i;
-                    z++;
+                    if (count[j].Numb == c)
+                    {
+                        count[j].mas[arr[i] % 1000]++;
+                        ok = true;
+                        break;
+                    }
                 }
+                if(ok==false)
+                { Class1 temp = new Class1() { Numb = c };temp.mas[arr[i] % 1000]++; count.Add(temp); }
+            }
+            count.Sort();
+            int z = 0;
+            for (int i = 0; i < count.Count; i++)
+            {
+                ulong c = count[i].Numb*1000;
+                for (uint j=0;j<1000;j++)
+                    while (count[i].mas[j]-- > 0)
+                        arr[z++] = c + j;
             }
             return arr;
         }
-            private static void NewMethod(ref int[] c,ref int[] c1, int[] a)
+        class Class1 : IComparable
         {
-            for (int i = a.Length-1; i > 0; i--)
-                c[--c1[a[i]]] = a[i];
-        }
+            public ulong Numb;
+            public int[] mas = new int[1000];
 
-        private static void FillMas(ref StreamReader ForReading,ref int[] a)
-        {
-            string[] line = ForReading.ReadLine().Split(' ');
-            for (int i = 0; i < a.Length; i++)
+            public Class1()
             {
-                int kek = Convert.ToInt32(line[i]);
-                a[i] = kek;
+            }
+
+            public Class1(uint i)
+            {
+                Numb = i;
+            }
+
+            public int CompareTo(object obj)
+            {
+                Class1 temp = (Class1)obj;
+                if (Numb < temp.Numb) return -1;
+                else if (Numb > temp.Numb) return 1;
+                return 0;
             }
         }
     }
