@@ -9,9 +9,9 @@ namespace koks
 {
     class Program
     {
-        static bool AsNeed(int[] array)
+        static bool AsNeed(long[] array)
         {
-            for (int i = 1; i < array.Length; i++)
+            for (long i = 1; i < array.Length; i++)
             {
                 if (array[i] < array[i - 1]) return false;
             }
@@ -20,47 +20,35 @@ namespace koks
         static void Main(string[] args)
         {
             StreamReader ForReading = new StreamReader("input.TXT");
-            string[] line = ForReading.ReadLine().Split(' ');
-            int n = Convert.ToInt32(line[0]);
-            int k = Convert.ToInt32(line[1]);
+            args = ForReading.ReadLine().Split(' ');
+            long n = long.Parse(args[0]);
+            long k = long.Parse(args[1]);
             StreamWriter Write = new StreamWriter("output.TXT");
-            if(k==2&&n==100000)
-                Write.WriteLine("YES");
-            else
             if (k != 1)
             {
-                int[] array = ForReading.ReadLine().Split(' ').Select(n1 => int.Parse(n1)).ToArray();
+                long[] arr = new long[n];
+                args = ForReading.ReadLine().Split(' ');
                 ForReading.Close();
-                bool needConttinue = false;
-                do
+                for (long i = 0; i < n; i++)
+                    arr[i] = long.Parse(args[i]);
+                List<List<long>> temp=new List<List<long>>();
+                for (long i = 0; i < k; i++)
+                    temp.Add(new List<long>());
+                for (int i = 0; i < k; i ++)
+                    for (long j = 0; j < n && i + j < n; j += k)
+                        temp[i].Add(arr[i + j]);
+                for (int i = 0; i < temp.Count; i++)
+                    temp[i].Sort();
+                for (int i = 0; i < k; i++)
                 {
-                    needConttinue = false;
-                    for (int i = 0; i < array.Length - k; i++)
-                    {
-                        if (array[i] > array[i + k])
-                        {
-                            int c = i;
-                            while (c-k>0&&array[i] < array[c - k])
-                                c -= k;
-                            int tmp = array[c];
-                            array[c] = array[i + k];
-                            array[i + k] = tmp;
-                            needConttinue = true;
-                            if (c - k < 0)
-                            {
-                                if (array[c] > array[c + 1])
-                                    break;
-                                if(c-1>-1)
-                                    if (array[c] < array[c -1])
-                                        break;
-                            }
-                        }
-                    }
-                } while (needConttinue);
-                Write.WriteLine(AsNeed(array) ? "YES" : "NO");
+                    int g = 0;
+                    for (long j = 0; j < n && i + j < n; j += k)
+                        arr[i + j] = temp[i][g++];
+                }
+                Write.Write(AsNeed(arr) ? "YES" : "NO");
             }
             else
-                Write.WriteLine("YES");
+                Write.Write("YES");
             Write.Close();
         }
     }
